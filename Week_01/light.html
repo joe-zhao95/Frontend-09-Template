@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style type="text/css">
+      .container {
+        display: flex;
+      }
+
+      .lights {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-right: 10px;
+        background-color: #666;
+      }
+
+      .red {
+        background-color: red;
+      }
+      .yellow {
+        background-color: yellow;
+      }
+      .green {
+        background-color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="lights"></div>
+      <div class="lights"></div>
+      <div class="lights"></div>
+    </div>
+    <script>
+      async function start() {
+        while (true) {
+          await redStart();
+          await yellowStart();
+          await greenStart();
+        }
+      }
+
+      async function redStart() {
+        const lights = document.getElementsByClassName("lights");
+        const redLights = lights[0];
+        redLights.classList.add("red");
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            redLights.classList.remove("red");
+            resolve();
+          }, 2000);
+        });
+      }
+
+      async function yellowStart() {
+        const lights = document.getElementsByClassName("lights");
+        const redLights = lights[1];
+        redLights.classList.add("yellow");
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            redLights.classList.remove("yellow");
+            resolve();
+          }, 2000);
+        });
+      }
+
+      function greenStart() {
+        const lights = document.getElementsByClassName("lights");
+        const redLights = lights[2];
+        redLights.classList.add("green");
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            redLights.classList.remove("green");
+            resolve();
+          }, 2000);
+        });
+      }
+
+      start();
+    </script>
+  </body>
+</html>

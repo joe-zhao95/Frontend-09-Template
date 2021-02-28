@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #board {
+        background: green;
+        display: flex;
+        flex-wrap: wrap;
+        width: 300px;
+        height: 300px;
+      }
+
+      .cell {
+        width: 100px;
+        height: 100px;
+        box-sizing: border-box;
+        border: 1px solid #f5f5f5;
+        font-size: 50px;
+        text-align: center;
+        line-height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="board"></div>
+  </body>
+  <script>
+    let pattern = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+
+    const PLAY1 = 1;
+    const PLAY2 = 2;
+    const RESULT_STATE = {
+      win: 1,
+      lose: -1,
+      draw: 0,
+    };
+
+    let player = PLAY1;
+
+    function show() {
+      let boardElement = document.getElementById("board");
+      boardElement.innerHTML = "";
+
+      for (let i = 0; i < pattern.length; i++) {
+        for (let j = 0; j < pattern[i].length; j++) {
+          let cellElement = document.createElement("div");
+          cellElement.classList.add("cell");
+          cellElement.addEventListener("click", () => move(j, i, pattern));
+          cellElement.innerHTML =
+            pattern[i][j] === 0 ? "" : pattern[i][j] === PLAY1 ? "⭕️" : "❌";
+          boardElement.appendChild(cellElement);
+        }
+      }
+    }
+
+    function move(x, y, pattern) {
+      pattern[y][x] = player;
+      const isWin = check(pattern, player);
+      if (isWin) {
+        alert(`${player === PLAY1 ? "⭕️" : "❌"} is winner`);
+      }
+      player = PLAY1 + PLAY2 - player;
+      show();
+      if (willWin(pattern, player)) {
+        console.log(`${player === PLAY1 ? "⭕️" : "❌"} will winner`);
+      }
+      computerMove();
+    }
+
+    // 判断是否胜利
+    function check(pattern, player) {
+      // 行连
+      for (let i = 0; i < pattern.length; i++) {
+        let win = true;
+        for (let j = 0; j < pattern[i].length; j++) {
+          if (pattern[i][j] !== player) {
+            win = false;
+          }
+        }
+        if (win) {
+          return win;
+        }
+      }
+
+      // 列连
+      for (let i = 0; i < pattern.length; i++) {
+        let win = true;
+        for (let j = 0; j < pattern[i].length; j++) {
+          if (pattern[j][i] !== player) {
+            win = false;
+          }
+        }
+        if (win) {
+          return win;
+        }
+      }
+
+      // 斜连
+      {
+        let win = true;
+        for (let i = 0; i < pattern.length; i++) {
+          if (pattern[i][i] !== player) {
+            win = false;
+          }
+        }
+        if (win) {
+          return win;
+        }
+      }
+      {
+        let win = true;
+        for (let i = 0; i < pattern.length; i++) {
+          if (pattern[i][2 - i] !== player) {
+            win = false;
+          }
+        }
+        if (win) {
+          return win;
+        }
+      }
+    }
+
+    // 判断是否将要赢
+    function willWin(pattern, player) {
+      for (let i = 0; i < pattern.length; i++) {
+        for (let j = 0; j < pattern[i].length; j++) {
+          if (!pattern[i][j]) {
+            const clonePattern = clone(pattern);
+            clonePattern[i][j] = player;
+            const isWin = check(clonePattern, player);
+            if (isWin) {
+              return [j, i];
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function clone(pattern) {
+      // return Object.create(pattern);
+      return JSON.parse(JSON.stringify(pattern));
+    }
+
+    function bestChoice(pattern, player) {
+      let p;
+      if ((p = willWin(pattern, player))) {
+        return {
+          point: p,
+          result: RESULT_STATE.win,
+        };
+      }
+
+      let result = -2;
+      let point = null;
+      outer: for (let i = 0; i < pattern.length; i++) {
+        for (let j = 0; j < pattern[i].length; j++) {
+          if (!pattern[i][j]) {
+            const clonePattern = clone(pattern);
+            clonePattern[i][j] = player;
+            const nextPlayer = PLAY1 + PLAY2 - player;
+            const resultInfo = bestChoice(clonePattern, nextPlayer);
+
+            if (-resultInfo.result > result) {
+              result = -resultInfo.result;
+              point = [j, i];
+            }
+
+            if (result === RESULT_STATE.win) {
+              break outer;
+            }
+          }
+        }
+      }
+
+      return {
+        point,
+        result: point ? result : RESULT_STATE.draw,
+      };
+    }
+
+    function computerMove() {
+      const choice = bestChoice(pattern, player);
+      if (choice) {
+        pattern[choice.point[1]][choice.point[0]] = player;
+      }
+      const isWin = check(pattern, player);
+      if (isWin) {
+        alert(`${player === PLAY1 ? "⭕️" : "❌"} is winner`);
+      }
+      player = PLAY1 + PLAY2 - player;
+      show();
+    }
+
+    show();
+  </script>
+</html>
