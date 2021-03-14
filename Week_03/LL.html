@@ -1,0 +1,54 @@
+<script>
+  var regexp = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g;
+
+  var dicitionary = [
+    "Number",
+    "Whitespace",
+    "LineTerminator",
+    "*",
+    "/",
+    "+",
+    "-",
+  ];
+
+  function* tokenize(source) {
+    var result = null;
+    var lastIndex = 0;
+    while (true) {
+      lastIndex = regexp.lastIndex;
+      result = regexp.exec(source);
+
+      if (!result) {
+        break;
+      }
+      if (regexp.lastIndex - lastIndex > result[0].length) {
+        throw "存在不认识的字符";
+        break;
+      }
+
+      let token = {
+        type: null,
+        value: null,
+      };
+
+      for (let i = 1; i <= dicitionary.length; i++) {
+        if (result[i]) {
+          token.type = dicitionary[i - 1];
+        }
+      }
+      token.value = result[0];
+      yield token;
+    }
+    yield {
+      type: "EOF",
+    };
+  }
+
+  let source = [];
+
+  for (let token of tokenize("1024 + 10 * 25")) {
+    if (token.type !== "Whitespace" && token.type !== "LineTerminator") {
+      source.push(token);
+    }
+  }
+</script>
