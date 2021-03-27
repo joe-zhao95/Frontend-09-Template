@@ -1,0 +1,15 @@
+<script>
+  let object = {
+    a: 1,
+    b: 2,
+  };
+
+  let po = new Proxy(object, {
+    set(obj, props, val) {
+      console.log(obj, props, val);
+    },
+    get(obj, props) {
+      console.log(obj, props);
+    },
+  });
+</script>

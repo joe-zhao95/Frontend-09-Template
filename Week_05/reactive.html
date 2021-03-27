@@ -1,0 +1,64 @@
+<script>
+  let callbacks = new Map();
+  let reactivties = new Map(); // 当每个对象去调用reactive的时候加一个缓存
+
+  let usedReactivties = [];
+
+  let object = {
+    a: { b: 3 },
+    b: 2,
+  };
+
+  let po = reactive(object);
+
+  effect(() => {
+    console.log(po.a.b);
+  });
+
+  function effect(callback) {
+    usedReactivties = [];
+    callback();
+
+    for (let reactivity of usedReactivties) {
+      if (!callbacks.has(reactivity[0])) {
+        callbacks.set(reactivity[0], new Map());
+      }
+
+      if (!callbacks.get(reactivity[0]).has(reactivity[1])) {
+        callbacks.get(reactivity[0]).set(reactivity[1], []);
+      }
+
+      callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+    }
+  }
+
+  function reactive(object) {
+    if (reactivties.has(object)) {
+      return reactivties.get(object);
+    }
+    let proxy = new Proxy(object, {
+      set(obj, props, val) {
+        obj[props] = val;
+        if (callbacks.get(obj)) {
+          if (callbacks.get(obj).get(props)) {
+            for (let callback of callbacks.get(obj).get(props)) {
+              callback();
+            }
+          }
+        }
+        return obj[props];
+      },
+      get(obj, props) {
+        usedReactivties.push([obj, props]);
+        if (typeof obj[props] === "object") {
+          return reactive(obj[props]);
+        }
+        return obj[props];
+      },
+    });
+
+    reactivties.set(object, proxy);
+
+    return proxy;
+  }
+</script>
