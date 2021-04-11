@@ -1,0 +1,29 @@
+<script>
+  function StringToNumber(string) {
+    if (typeof string !== "string") {
+      console.error("参数不是字符串");
+      return;
+    }
+    let str = string;
+    let isNegative = false;
+    if (str.match(/^-/)) {
+      isNegative = true;
+      str = str.replace(/^-/, "");
+    }
+    return isNegative ? -Number(str) : Number(str);
+  }
+
+  /**
+   *
+   * @param {Number} number number类型
+   * @param {Number} radix 2, 8, 10, 16进制
+   * @return {String}
+   */
+  function NumberToString(number, radix) {
+    if (typeof number !== "number") {
+      console.error("参数不是number类型");
+      return;
+    }
+    return number.toString(radix);
+  }
+</script>
