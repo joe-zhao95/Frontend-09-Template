@@ -3,20 +3,18 @@
 <script>
   function match(selector, element) {
     const selectorList = selector.split(" ");
-    test(selectorList, element);
+    return test(selectorList, element);
   }
 
   function test(selectorList, element) {
     if (!selectorList.length) {
-      console.log("成功");
       return true;
     }
     const curSelector = selectorList.pop();
     const isMatch = matchSingle(curSelector, element);
     if (isMatch) {
-      test(selectorList, element.parentNode);
+      return test(selectorList, element.parentNode);
     } else {
-      console.log("失败");
       return false;
     }
   }
